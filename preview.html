@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pomodoro + Progress Tracker</title>
+  <style>
+    :root{
+      --bg:#191919;
+      --card:#0f1620;
+      --text:#e6edf3;
+      --muted:#9aa4af;
+      --line:#1c2633;
+      --accent:#7aa2ff;
+      --good:#3ddc97;
+      --warn:#ffcc66;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:transparent;
+      color:var(--text);
+    }
+    .wrap{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:linear-gradient(180deg, rgba(11,15,20,.95), rgba(11,15,20,.88));
+    }
+    .card{
+      width:min(520px, 100%);
+      background:rgba(15,22,32,.92);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .title{
+      font-size:14px;
+      letter-spacing:.2px;
+      color:var(--muted);
+      margin:0;
+    }
+    .timer{
+      font-size:56px;
+      line-height:1;
+      letter-spacing:1px;
+      font-weight:650;
+      margin:10px 0 10px;
+      text-align:center;
+    }
+    .sub{
+      text-align:center;
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .btnrow{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      margin-bottom:16px;
+    }
+    button{
+      appearance:none;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 14px;
+      font-weight:600;
+      cursor:pointer;
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      min-width:112px;
+    }
+    button:hover{ background:rgba(255,255,255,.04); border-color:#2a394d; }
+    button:active{ transform: translateY(1px); }
+    button:disabled{ opacity:.45; cursor:not-allowed; }
+    .primary{
+      border-color:rgba(122,162,255,.35);
+    }
+    .primary:hover{
+      border-color:rgba(122,162,255,.6);
+      background:rgba(122,162,255,.08);
+    }
+    .progressbox{
+      border-top:1px solid var(--line);
+      padding-top:14px;
+    }
+    .labels{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .labels .left{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .labels .right{
+      font-size:13px;
+      color:var(--muted);
+      text-align:right;
+      white-space:nowrap;
+    }
+    .bar{
+      width:100%;
+      height:12px;
+      background:#0a1119;
+      border:1px solid var(--line);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, rgba(122,162,255,.95), rgba(61,220,151,.95));
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+    .mini{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:10px;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .mini .pill{
+      border:1px solid var(--line);
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.02);
+    }
+    .mini .actions{
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .linkbtn{
+      min-width:auto;
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:999px;
+    }
+    .danger:hover{ border-color:rgba(255,80,80,.5); background:rgba(255,80,80,.07); }
+    .hint{
+      margin-top:10px;
+      font-size:11px;
+      color:rgba(154,164,175,.8);
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="application" aria-label="Pomodoro timer and 360 hour tracker">
+      <div class="top">
+        <p class="title">Pomodoro + Progress Tracker</p>
+        <p class="title" id="status">Ready</p>
+      </div>
+
+      <div class="timer" id="time">30:00</div>
+      <p class="sub" id="sub">Each completed Pomodoro adds <b>0.5</b> towards the total progress</p>
+
+      <div class="btnrow">
+        <button class="primary" id="startBtn">Start</button>
+        <button id="pauseBtn" disabled>Pause</button>
+      </div>
+
+      <div class="progressbox">
+        <div class="labels">
+          <div class="left">Progress</div>
+          <div class="right"><span id="hours">0.0</span> / 360</div>
+        </div>
+        <div class="bar" aria-label="progress bar">
+          <div class="fill" id="fill"></div>
+        </div>
+
+        <div class="mini">
+          <div class="pill"><span id="pomos">0</span> / 720 pomodoros</div>
+          <div class="actions">
+            <button class="linkbtn" id="undoBtn" title="Undo last completed pomodoro">Undo</button>
+            <button class="linkbtn danger" id="resetBtn" title="Reset all progress">Reset</button>
+          </div>
+        </div>
+
+        <div class="hint">Progress is saved automatically (local storage).</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Settings
+    const POMO_SECONDS = 30 * 60;   // 30 minutes
+    const GOAL_HOURS = 360;
+    const HOURS_PER_POMO = 0.5;
+    const GOAL_POMOS = Math.round(GOAL_HOURS / HOURS_PER_POMO); // 720
+
+    // State (persisted)
+    const STORAGE_KEY = "notion_pomo_360h_v1";
+
+    const els = {
+      time: document.getElementById("time"),
+      status: document.getElementById("status"),
+      start: document.getElementById("startBtn"),
+      pause: document.getElementById("pauseBtn"),
+      hours: document.getElementById("hours"),
+      pomos: document.getElementById("pomos"),
+      fill: document.getElementById("fill"),
+      undo: document.getElementById("undoBtn"),
+      reset: document.getElementById("resetBtn")
+    };
+
+    let intervalId = null;
+    let remaining = POMO_SECONDS;
+    let running = false;
+
+    let progress = {
+      completedPomos: 0,
+      lastCompletedAt: null
+    };
+
+    function loadProgress(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        const parsed = JSON.parse(raw);
+        if(typeof parsed?.completedPomos === "number"){
+          progress.completedPomos = Math.max(0, Math.min(GOAL_POMOS, parsed.completedPomos));
+        }
+        progress.lastCompletedAt = parsed?.lastCompletedAt ?? null;
+      } catch(e){}
+    }
+
+    function saveProgress(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function fmtTime(sec){
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }
+
+    function updateUI(){
+      els.time.textContent = fmtTime(remaining);
+
+      const hoursDone = progress.completedPomos * HOURS_PER_POMO;
+      els.hours.textContent = hoursDone.toFixed(1);
+      els.pomos.textContent = progress.completedPomos;
+
+      const pct = (hoursDone / GOAL_HOURS) * 100;
+      els.fill.style.width = clamp(pct, 0, 100) + "%";
+
+      els.undo.disabled = progress.completedPomos <= 0;
+      els.reset.disabled = progress.completedPomos <= 0 && remaining === POMO_SECONDS && !running;
+    }
+
+    function setStatus(text){
+      els.status.textContent = text;
+    }
+
+    function start(){
+      if(running) return;
+      running = true;
+      els.start.disabled = true;
+      els.pause.disabled = false;
+      setStatus("Running");
+
+      intervalId = setInterval(() => {
+        remaining -= 1;
+        if(remaining <= 0){
+          completePomodoro();
+        }
+        updateUI();
+      }, 1000);
+    }
+
+    function pause(){
+      if(!running) return;
+      running = false;
+      els.start.disabled = false;
+      els.pause.disabled = true;
+      setStatus("Paused");
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+
+    function softResetTimer(){
+      remaining = POMO_SECONDS;
+    }
+
+    function completePomodoro(){
+      // stop interval
+      clearInterval(intervalId);
+      intervalId = null;
+      running = false;
+
+      // add progress
+      if(progress.completedPomos < GOAL_POMOS){
+        progress.completedPomos += 1;
+        progress.lastCompletedAt = new Date().toISOString();
+        saveProgress();
+      }
+
+      // reset timer and buttons
+      softResetTimer();
+      els.start.disabled = false;
+      els.pause.disabled = true;
+
+      // status
+      if(progress.completedPomos >= GOAL_POMOS){
+        setStatus("Goal reached ✅");
+      } else {
+        setStatus("+0.5h added");
+        // brief status fade
+        setTimeout(() => setStatus("Ready"), 1200);
+      }
+
+      updateUI();
+    }
+
+    function undoLast(){
+      if(progress.completedPomos <= 0) return;
+      progress.completedPomos -= 1;
+      progress.lastCompletedAt = new Date().toISOString();
+      saveProgress();
+      setStatus("Undone");
+      setTimeout(() => setStatus(running ? "Running" : "Ready"), 900);
+      updateUI();
+    }
+
+    function resetAll(){
+      pause();
+      progress.completedPomos = 0;
+      progress.lastCompletedAt = null;
+      saveProgress();
+      softResetTimer();
+      setStatus("Reset");
+      setTimeout(() => setStatus("Ready"), 900);
+      updateUI();
+    }
+
+    // Wire up
+    els.start.addEventListener("click", start);
+    els.pause.addEventListener("click", pause);
+    els.undo.addEventListener("click", undoLast);
+    els.reset.addEventListener("click", resetAll);
+
+    // Init
+    loadProgress();
+    updateUI();
+  </script>
+</body>
+</html>
