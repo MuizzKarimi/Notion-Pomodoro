@@ -4,96 +4,84 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pomodoro + Progress Tracker</title>
+
   <style>
     :root{
-      --bg:#191919;
-      --card:#0f1620;
+      --card:#191919;
       --text:#e6edf3;
-      --muted:#9aa4af;
-      --line:#1c2633;
+      --muted:#8b949e;
+      --line:#2a2a2a;
       --accent:#7aa2ff;
-      --good:#3ddc97;
-      --warn:#ffcc66;
+      --btn:#111111;
+      --bar:#0f0f0f;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    *{ box-sizing:border-box; }
+    html, body{
+      margin:0; padding:0;
       background:transparent;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color:var(--text);
     }
-    .wrap{
-      width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:8px;
-  background:transparent;
+    .page-bg{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:12px;
+      background:transparent;
     }
     .card{
-      width:min(520px, 100%);
-      background:rgba(15,22,32,.92);
+      width:100%;
+      max-width:520px;
+      background:var(--card);
       border:1px solid var(--line);
-      border-radius:18px;
+      border-radius:14px;
       padding:18px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-      backdrop-filter: blur(8px);
     }
     .top{
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
+      align-items:center;
       gap:12px;
-      margin-bottom:14px;
-    }
-    .title{
+      margin-bottom:10px;
       font-size:14px;
-      letter-spacing:.2px;
       color:var(--muted);
-      margin:0;
     }
     .timer{
-      font-size:56px;
-      line-height:1;
-      letter-spacing:1px;
-      font-weight:650;
-      margin:10px 0 10px;
+      font-size:64px;
+      font-weight:800;
       text-align:center;
+      margin:10px 0 6px;
+      letter-spacing:1px;
+      line-height:1;
     }
     .sub{
       text-align:center;
-      margin:0 0 14px;
-      color:var(--muted);
       font-size:13px;
+      color:var(--muted);
+      margin:0 0 16px;
     }
     .btnrow{
       display:flex;
-      gap:10px;
+      gap:12px;
       justify-content:center;
-      margin-bottom:16px;
+      margin-bottom:18px;
     }
     button{
-      appearance:none;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
+      background:var(--btn);
       color:var(--text);
-      border-radius:12px;
-      padding:10px 14px;
-      font-weight:600;
+      border-radius:10px;
+      padding:10px 18px;
+      font-weight:700;
       cursor:pointer;
-      transition: transform .05s ease, background .2s ease, border-color .2s ease;
-      min-width:112px;
+      transition: border-color .2s ease, transform .05s ease;
+      min-width:110px;
     }
-    button:hover{ background:rgba(255,255,255,.04); border-color:#2a394d; }
+    button:hover{ border-color:var(--accent); }
     button:active{ transform: translateY(1px); }
     button:disabled{ opacity:.45; cursor:not-allowed; }
-    .primary{
-      border-color:rgba(122,162,255,.35);
-    }
-    .primary:hover{
-      border-color:rgba(122,162,255,.6);
-      background:rgba(122,162,255,.08);
-    }
+
     .progressbox{
       border-top:1px solid var(--line);
       padding-top:14px;
@@ -102,181 +90,272 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
+      font-size:13px;
+      color:var(--muted);
       margin-bottom:8px;
-    }
-    .labels .left{
-      font-size:13px;
-      color:var(--muted);
-    }
-    .labels .right{
-      font-size:13px;
-      color:var(--muted);
-      text-align:right;
-      white-space:nowrap;
     }
     .bar{
       width:100%;
-      height:12px;
-      background:#0a1119;
-      border:1px solid var(--line);
+      height:10px;
+      background:var(--bar);
       border-radius:999px;
       overflow:hidden;
+      border:1px solid var(--line);
     }
     .fill{
       height:100%;
       width:0%;
-      background:linear-gradient(90deg, rgba(122,162,255,.95), rgba(61,220,151,.95));
-      border-radius:999px;
-      transition: width .25s ease;
+      background:var(--accent);
+      transition: width .3s ease;
     }
-    .mini{
+
+    /* Minimal sync UI */
+    .sync{
+      margin-top:12px;
+      border-top:1px solid var(--line);
+      padding-top:12px;
       display:flex;
-      justify-content:space-between;
+      gap:8px;
       align-items:center;
-      margin-top:10px;
-      gap:10px;
+      flex-wrap:wrap;
       color:var(--muted);
       font-size:12px;
     }
-    .mini .pill{
+    .sync input{
+      flex:1;
+      min-width:190px;
       border:1px solid var(--line);
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.02);
+      background:#111;
+      color:var(--text);
+      border-radius:10px;
+      padding:8px 10px;
+      outline:none;
     }
-    .mini .actions{
-      display:flex;
-      gap:8px;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-    }
-    .linkbtn{
+    .sync input:focus{ border-color:var(--accent); }
+    .tinybtn{
       min-width:auto;
-      padding:6px 10px;
+      padding:8px 12px;
       font-size:12px;
-      border-radius:999px;
+      border-radius:10px;
     }
-    .danger:hover{ border-color:rgba(255,80,80,.5); background:rgba(255,80,80,.07); }
     .hint{
       margin-top:10px;
-      font-size:11px;
-      color:rgba(154,164,175,.8);
       text-align:center;
+      font-size:11px;
+      color:#6e7681;
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
+  <div class="page-bg">
     <div class="card" role="application" aria-label="Pomodoro timer and 360 hour tracker">
+
       <div class="top">
-        <p class="title">Pomodoro + Progress Tracker</p>
-        <p class="title" id="status">Ready</p>
+        <div>Pomodoro + Progress Tracker</div>
+        <div id="status">Ready</div>
       </div>
 
       <div class="timer" id="time">30:00</div>
-      <p class="sub" id="sub">Each completed Pomodoro adds <b>0.5</b> towards the total progress</p>
+      <p class="sub">Each completed Pomodoro adds <b>0.5</b> towards the total progress</p>
 
       <div class="btnrow">
-        <button class="primary" id="startBtn">Start</button>
+        <button id="startBtn">Start</button>
         <button id="pauseBtn" disabled>Pause</button>
       </div>
 
       <div class="progressbox">
         <div class="labels">
-          <div class="left">Progress</div>
-          <div class="right"><span id="hours">0.0</span> / 360</div>
+          <div>Progress</div>
+          <div><span id="hours">0.0</span> / 360</div>
         </div>
+
         <div class="bar" aria-label="progress bar">
           <div class="fill" id="fill"></div>
         </div>
 
-        <div class="mini">
-          <div class="pill"><span id="pomos">0</span> / 720 pomodoros</div>
-          <div class="actions">
-            <button class="linkbtn" id="undoBtn" title="Undo last completed pomodoro">Undo</button>
-            <button class="linkbtn danger" id="resetBtn" title="Reset all progress">Reset</button>
-          </div>
+        <div class="hint" id="pomoLine">0 / 720 pomodoros</div>
+
+        <div class="sync">
+          <div>Sync Key</div>
+          <input id="syncKeyInput" placeholder="Paste same key on other devices" />
+          <button class="tinybtn" id="copyKeyBtn">Copy</button>
+          <button class="tinybtn" id="useKeyBtn">Use</button>
         </div>
 
-        <div class="hint">Progress is saved automatically (local storage).</div>
+        <div class="hint">Use the same Sync Key on every device to keep progress synced.</div>
       </div>
+
     </div>
   </div>
 
-  <script>
-    // Settings
+  <script type="module">
+    // ========= SETTINGS =========
     const POMO_SECONDS = 30 * 60;   // 30 minutes
     const GOAL_HOURS = 360;
     const HOURS_PER_POMO = 0.5;
     const GOAL_POMOS = Math.round(GOAL_HOURS / HOURS_PER_POMO); // 720
 
-    // State (persisted)
-    const STORAGE_KEY = "notion_pomo_360h_v1";
+    const LOCAL_SYNC_KEY = "notion_pomo_sync_key_v1";
 
+    // ========= FIREBASE (paste your config below) =========
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyBvTg8pUjUQiHOzr1ryE3f0FjLAnesXAsc",
+  authDomain: "pomodoro-notion-39b10.firebaseapp.com",
+  projectId: "pomodoro-notion-39b10",
+  storageBucket: "pomodoro-notion-39b10.firebasestorage.app",
+  messagingSenderId: "1072647200630",
+  appId: "1:1072647200630:web:f1ad500e8db31e87366457"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ========= UI =========
     const els = {
       time: document.getElementById("time"),
       status: document.getElementById("status"),
       start: document.getElementById("startBtn"),
       pause: document.getElementById("pauseBtn"),
       hours: document.getElementById("hours"),
-      pomos: document.getElementById("pomos"),
       fill: document.getElementById("fill"),
-      undo: document.getElementById("undoBtn"),
-      reset: document.getElementById("resetBtn")
+      pomoLine: document.getElementById("pomoLine"),
+      syncInput: document.getElementById("syncKeyInput"),
+      copyKey: document.getElementById("copyKeyBtn"),
+      useKey: document.getElementById("useKeyBtn"),
     };
 
     let intervalId = null;
     let remaining = POMO_SECONDS;
     let running = false;
 
-    let progress = {
-      completedPomos: 0,
-      lastCompletedAt: null
-    };
-
-    function loadProgress(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return;
-        const parsed = JSON.parse(raw);
-        if(typeof parsed?.completedPomos === "number"){
-          progress.completedPomos = Math.max(0, Math.min(GOAL_POMOS, parsed.completedPomos));
-        }
-        progress.lastCompletedAt = parsed?.lastCompletedAt ?? null;
-      } catch(e){}
-    }
-
-    function saveProgress(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-    }
+    let progress = { completedPomos: 0, updatedAt: 0 };
 
     function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-
     function fmtTime(sec){
       const m = Math.floor(sec / 60);
       const s = sec % 60;
       return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
     }
+    function setStatus(t){ els.status.textContent = t; }
 
     function updateUI(){
       els.time.textContent = fmtTime(remaining);
 
       const hoursDone = progress.completedPomos * HOURS_PER_POMO;
       els.hours.textContent = hoursDone.toFixed(1);
-      els.pomos.textContent = progress.completedPomos;
+      els.pomoLine.textContent = `${progress.completedPomos} / ${GOAL_POMOS} pomodoros`;
 
       const pct = (hoursDone / GOAL_HOURS) * 100;
       els.fill.style.width = clamp(pct, 0, 100) + "%";
-
-      els.undo.disabled = progress.completedPomos <= 0;
-      els.reset.disabled = progress.completedPomos <= 0 && remaining === POMO_SECONDS && !running;
     }
 
-    function setStatus(text){
-      els.status.textContent = text;
+    // ========= SYNC KEY =========
+    function randomKey(){
+      // long random key, good enough for "open rules"
+      return crypto.randomUUID() + "-" + crypto.randomUUID();
     }
 
+    function getSyncKey(){
+      let k = localStorage.getItem(LOCAL_SYNC_KEY);
+      if(!k){
+        k = randomKey();
+        localStorage.setItem(LOCAL_SYNC_KEY, k);
+      }
+      return k;
+    }
+
+    let syncKey = getSyncKey();
+    els.syncInput.value = syncKey;
+
+    function setSyncKey(newKey){
+      const cleaned = (newKey || "").trim();
+      if(!cleaned) return;
+      syncKey = cleaned;
+      localStorage.setItem(LOCAL_SYNC_KEY, syncKey);
+      els.syncInput.value = syncKey;
+      subscribeToRemote(); // re-subscribe
+      pullRemoteOnce();    // refresh data now
+      setStatus("Synced");
+      setTimeout(() => setStatus("Ready"), 900);
+    }
+
+    els.copyKey.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(syncKey);
+        setStatus("Key copied");
+        setTimeout(() => setStatus("Ready"), 900);
+      } catch(e){
+        // fallback: select
+        els.syncInput.focus();
+        els.syncInput.select();
+        setStatus("Select + copy");
+        setTimeout(() => setStatus("Ready"), 900);
+      }
+    });
+
+    els.useKey.addEventListener("click", () => setSyncKey(els.syncInput.value));
+
+    // ========= FIRESTORE =========
+    function docRef(){
+      return doc(db, "pomoProgress", syncKey);
+    }
+
+    let unsub = null;
+
+    async function pullRemoteOnce(){
+      try{
+        const snap = await getDoc(docRef());
+        if(snap.exists()){
+          const data = snap.data();
+          if(typeof data.completedPomos === "number"){
+            progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
+          }
+          if(typeof data.updatedAt === "number") progress.updatedAt = data.updatedAt;
+        } else {
+          // initialize remote doc
+          await setDoc(docRef(), { completedPomos: 0, updatedAt: Date.now() }, { merge: true });
+        }
+        updateUI();
+      } catch(e){
+        setStatus("Sync error");
+      }
+    }
+
+    function subscribeToRemote(){
+      if(unsub) unsub();
+      unsub = onSnapshot(docRef(), (snap) => {
+        if(!snap.exists()) return;
+        const data = snap.data();
+        const remoteUpdatedAt = typeof data.updatedAt === "number" ? data.updatedAt : 0;
+
+        // Only apply newer remote updates
+        if(remoteUpdatedAt > (progress.updatedAt || 0)){
+          if(typeof data.completedPomos === "number"){
+            progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
+          }
+          progress.updatedAt = remoteUpdatedAt;
+          updateUI();
+
+          if(progress.completedPomos >= GOAL_POMOS){
+            setStatus("Goal reached ✅");
+          }
+        }
+      });
+    }
+
+    async function pushProgress(){
+      progress.updatedAt = Date.now();
+      await setDoc(docRef(), {
+        completedPomos: progress.completedPomos,
+        updatedAt: progress.updatedAt
+      }, { merge: true });
+    }
+
+    // ========= TIMER =========
     function start(){
       if(running) return;
       running = true;
@@ -284,10 +363,10 @@
       els.pause.disabled = false;
       setStatus("Running");
 
-      intervalId = setInterval(() => {
+      intervalId = setInterval(async () => {
         remaining -= 1;
         if(remaining <= 0){
-          completePomodoro();
+          await completePomodoro();
         }
         updateUI();
       }, 1000);
@@ -303,69 +382,39 @@
       intervalId = null;
     }
 
-    function softResetTimer(){
+    function resetTimer(){
       remaining = POMO_SECONDS;
     }
 
-    function completePomodoro(){
-      // stop interval
+    async function completePomodoro(){
       clearInterval(intervalId);
       intervalId = null;
       running = false;
 
-      // add progress
       if(progress.completedPomos < GOAL_POMOS){
         progress.completedPomos += 1;
-        progress.lastCompletedAt = new Date().toISOString();
-        saveProgress();
+        updateUI();
+        try{ await pushProgress(); } catch(e){ setStatus("Sync error"); }
       }
 
-      // reset timer and buttons
-      softResetTimer();
+      resetTimer();
       els.start.disabled = false;
       els.pause.disabled = true;
 
-      // status
       if(progress.completedPomos >= GOAL_POMOS){
         setStatus("Goal reached ✅");
       } else {
-        setStatus("+0.5h added");
-        // brief status fade
+        setStatus("+0.5 added");
         setTimeout(() => setStatus("Ready"), 1200);
       }
-
-      updateUI();
     }
 
-    function undoLast(){
-      if(progress.completedPomos <= 0) return;
-      progress.completedPomos -= 1;
-      progress.lastCompletedAt = new Date().toISOString();
-      saveProgress();
-      setStatus("Undone");
-      setTimeout(() => setStatus(running ? "Running" : "Ready"), 900);
-      updateUI();
-    }
-
-    function resetAll(){
-      pause();
-      progress.completedPomos = 0;
-      progress.lastCompletedAt = null;
-      saveProgress();
-      softResetTimer();
-      setStatus("Reset");
-      setTimeout(() => setStatus("Ready"), 900);
-      updateUI();
-    }
-
-    // Wire up
     els.start.addEventListener("click", start);
     els.pause.addEventListener("click", pause);
-    els.undo.addEventListener("click", undoLast);
-    els.reset.addEventListener("click", resetAll);
 
-    // Init
-    loadProgress();
+    // init
+    await pullRemoteOnce();
+    subscribeToRemote();
     updateUI();
   </script>
 </body>
