@@ -3,124 +3,235 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pomodoro + Progress Tracker</title>
+  <title>Boss Fight Pomodoro</title>
 
   <style>
     :root{
-      --card:#191919;
+      --bg:#191919;
+      --card:#151515;
       --text:#e6edf3;
-      --muted:#8b949e;
-      --line:#2a2a2a;
-      --accent:#7aa2ff;
-      --btn:#111111;
-      --bar:#0f0f0f;
+      --muted:#9aa4af;
+      --line:rgba(255,255,255,.08);
+      --accent:#c9a7ff;
+      --danger:#ff5a7a;
     }
     *{ box-sizing:border-box; }
+
     html, body{
-  margin:0;
-  padding:0;
-  background:#191919;
-};
+      margin:0; padding:0;
+      width:100%; height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-    .page-bg{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding:12px;
-  background:#191919;
-}
-    .card{
-  width:100%;
-  max-width:520px;
-  background:var(--card);
-  border:1px solid #2f2f2f;   /* OUTER BORDER */
-  border-radius:18px;
-  padding:20px;
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.4),
-    0 0 0 1px rgba(255,255,255,0.04);
-}
-    .top{
+
+    .frame{
+      min-height:100vh;
       display:flex;
-      justify-content:space-between;
+      align-items:flex-start;
+      justify-content:center;
+      padding:18px;
+      background:var(--bg);
+    }
+
+    .card{
+      width:100%;
+      max-width:520px;
+      background: radial-gradient(1200px 600px at 30% -10%, rgba(201,167,255,.18), transparent 55%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(122,162,255,.12), transparent 55%),
+                  var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    }
+
+    .header{
+      display:flex;
       align-items:center;
+      justify-content:space-between;
       gap:12px;
       margin-bottom:10px;
-      font-size:14px;
-      color:var(--muted);
     }
-    .timer{
-  font-size:64px;
-  font-weight:800;
-  text-align:center;
-  margin:16px 0;
-  letter-spacing:1px;
-  line-height:1;
-  color:#f0f6fc;  /* FIXES black timer */
-}
-    .sub{
-      text-align:center;
-      font-size:13px;
-      color:var(--muted);
-      margin:0 0 16px;
-    }
-    .btnrow{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      margin-bottom:18px;
-    }
-    button{
-      border:1px solid var(--line);
-      background:var(--btn);
-      color:var(--text);
-      border-radius:10px;
-      padding:10px 18px;
-      font-weight:700;
-      cursor:pointer;
-      transition: border-color .2s ease, transform .05s ease;
-      min-width:110px;
-    }
-    button:hover{ border-color:var(--accent); }
-    button:active{ transform: translateY(1px); }
-    button:disabled{ opacity:.45; cursor:not-allowed; }
 
-    .progressbox{
-      border-top:1px solid var(--line);
-      padding-top:14px;
-    }
-    .labels{
+    .title{
       display:flex;
-      justify-content:space-between;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+
+    .title h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:800;
+      display:flex;
       align-items:center;
-      font-size:13px;
+      gap:8px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .subtitle{
+      margin:0;
       color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    .boss{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:10px 0 8px;
+      font-size:44px;
+      line-height:1;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.35));
+    }
+
+    .section{
+      margin-top:10px;
+      border-top:1px solid rgba(255,255,255,.06);
+      padding-top:12px;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:12.5px;
       margin-bottom:8px;
     }
+
     .bar{
       width:100%;
-      height:10px;
-      background:var(--bar);
+      height:12px;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.08);
       border-radius:999px;
       overflow:hidden;
-      border:1px solid var(--line);
     }
     .fill{
       height:100%;
-      width:0%;
-      background:var(--accent);
-      transition: width .3s ease;
+      width:100%;
+      background: linear-gradient(90deg, rgba(255,90,122,.95), rgba(201,167,255,.95));
+      transition: width .35s ease;
     }
 
-    /* Minimal sync UI */
-    .sync{
+    .center{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:14px 0 8px;
+    }
+
+    .statepill{
+      border:1px solid rgba(201,167,255,.45);
+      background:rgba(201,167,255,.10);
+      color:#eeddff;
+      padding:5px 12px;
+      border-radius:999px;
+      font-weight:800;
+      letter-spacing:.3px;
+      font-size:12px;
+    }
+
+    .timer{
+      font-size:64px;
+      font-weight:900;
+      letter-spacing:1px;
+      line-height:1;
+      color:#f0f6fc;
+      text-shadow: 0 10px 40px rgba(0,0,0,.55);
+    }
+
+    .btnrow{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-top:8px;
+    }
+
+    button{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 18px;
+      font-weight:800;
+      cursor:pointer;
+      transition: border-color .2s ease, transform .05s ease, background .2s ease;
+      min-width:120px;
+    }
+    button:hover{ border-color:rgba(201,167,255,.6); background:rgba(201,167,255,.08); }
+    button:active{ transform: translateY(1px); }
+    button:disabled{ opacity:.45; cursor:not-allowed; }
+
+    .meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
       margin-top:12px;
-      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      flex-wrap:wrap;
+    }
+
+    /* NEW: +/- controls */
+    .adjust{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .iconbtn{
+      width:34px;
+      height:34px;
+      min-width:34px;
+      padding:0;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(201,167,255,.35);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      font-weight:1000;
+      font-size:16px;
+      line-height:1;
+      cursor:pointer;
+      transition: border-color .2s ease, background .2s ease, transform .05s ease;
+    }
+    .iconbtn:hover{
+      border-color:rgba(201,167,255,.7);
+      background:rgba(201,167,255,.10);
+    }
+    .iconbtn:active{ transform: translateY(1px); }
+    .iconbtn:disabled{ opacity:.35; cursor:not-allowed; }
+
+    .sync{
+      margin-top:14px;
+      border-top:1px solid rgba(255,255,255,.06);
       padding-top:12px;
       display:flex;
-      gap:8px;
       align-items:center;
+      gap:8px;
       flex-wrap:wrap;
       color:var(--muted);
       font-size:12px;
@@ -128,68 +239,76 @@
     .sync input{
       flex:1;
       min-width:190px;
-      border:1px solid var(--line);
-      background:#111;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.28);
       color:var(--text);
-      border-radius:10px;
-      padding:8px 10px;
+      border-radius:12px;
+      padding:9px 12px;
       outline:none;
     }
-    .sync input:focus{ border-color:var(--accent); }
+    .sync input:focus{ border-color:rgba(201,167,255,.55); }
+
     .tinybtn{
       min-width:auto;
-      padding:8px 12px;
+      padding:9px 12px;
+      border-radius:12px;
       font-size:12px;
-      border-radius:10px;
-    }
-    .hint{
-      margin-top:10px;
-      text-align:center;
-      font-size:11px;
-      color:#6e7681;
+      font-weight:900;
     }
   </style>
 </head>
 
 <body>
-  <div class="page-bg">
-    <div class="card" role="application" aria-label="Pomodoro timer and 360 hour tracker">
-
-      <div class="top">
-        <div>Pomodoro + Progress Tracker</div>
-        <div id="status">Ready</div>
+  <div class="frame">
+    <div class="card" role="application" aria-label="Boss Fight Pomodoro and 360 hour health bar">
+      <div class="header">
+        <div class="title">
+          <h1>⚔️ Boss Fight Timer</h1>
+          <p class="subtitle">Complete Pomodoros to defeat the boss.</p>
+        </div>
+        <div class="chip" id="status">Ready</div>
       </div>
 
-      <div class="timer" id="time">30:00</div>
-      <p class="sub">Each completed Pomodoro adds <b>0.5</b> towards the total progress</p>
+      <div class="boss" aria-hidden="true">🐉</div>
 
-      <div class="btnrow">
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn" disabled>Pause</button>
+      <div class="section">
+        <div class="row">
+          <div>Boss Health (hours)</div>
+          <div><span id="health">360.0</span> / 360</div>
+        </div>
+        <div class="bar" aria-label="boss health bar">
+          <div class="fill" id="healthFill"></div>
+        </div>
       </div>
 
-      <div class="progressbox">
-        <div class="labels">
-          <div>Progress</div>
-          <div><span id="hours">0.0</span> / 360</div>
+      <div class="center">
+        <div class="statepill" id="statePill">HEALTHY</div>
+        <div class="timer" id="time">30:00</div>
+
+        <div class="btnrow">
+          <button id="startBtn">Start</button>
+          <button id="pauseBtn" disabled>Pause</button>
         </div>
-
-        <div class="bar" aria-label="progress bar">
-          <div class="fill" id="fill"></div>
-        </div>
-
-        <div class="hint" id="pomoLine">0 / 720 pomodoros</div>
-
-        <div class="sync">
-          <div>Sync Key</div>
-          <input id="syncKeyInput" placeholder="Paste same key on other devices" />
-          <button class="tinybtn" id="copyKeyBtn">Copy</button>
-          <button class="tinybtn" id="useKeyBtn">Use</button>
-        </div>
-
-        <div class="hint">Use the same Sync Key on every device to keep progress synced.</div>
       </div>
 
+      <div class="meta">
+        <div>Pomodoros completed: <b id="pomos">0</b> / 720</div>
+
+        <div class="adjust">
+          <button class="iconbtn" id="minusBtn" title="Remove 1 pomodoro">−</button>
+          <button class="iconbtn" id="plusBtn" title="Add 1 pomodoro">+</button>
+        </div>
+
+        <div>Damage dealt: <b id="damage">0.0</b> / 360h</div>
+      </div>
+
+      <div class="sync">
+        <div>Sync Key</div>
+        <input id="syncKeyInput" />
+        <button class="tinybtn" id="copyKeyBtn">Copy</button>
+        <button class="tinybtn" id="useKeyBtn">Use</button>
+      </div>
+      <!-- bottom hint text REMOVED -->
     </div>
   </div>
 
@@ -200,33 +319,24 @@
     const HOURS_PER_POMO = 0.5;
     const GOAL_POMOS = Math.round(GOAL_HOURS / HOURS_PER_POMO); // 720
 
-    const LOCAL_SYNC_KEY = "notion_pomo_sync_key_v1";
-
-    // ========= FIREBASE (paste your config below) =========
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-    const firebaseConfig = {
-  apiKey: "AIzaSyBvTg8pUjUQiHOzr1ryE3f0FjLAnesXAsc",
-  authDomain: "pomodoro-notion-39b10.firebaseapp.com",
-  projectId: "pomodoro-notion-39b10",
-  storageBucket: "pomodoro-notion-39b10.firebasestorage.app",
-  messagingSenderId: "1072647200630",
-  appId: "1:1072647200630:web:f1ad500e8db31e87366457"
-};
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
+    const LOCAL_SYNC_KEY = "notion_boss_pomo_sync_key_v1";
+    const LOCAL_BACKUP_PROGRESS_BASE = "notion_boss_progress_backup_v1";
+function backupKeyFor(k){
+  return `${LOCAL_BACKUP_PROGRESS_BASE}:${k}`;
+}
     // ========= UI =========
     const els = {
       time: document.getElementById("time"),
       status: document.getElementById("status"),
+      statePill: document.getElementById("statePill"),
       start: document.getElementById("startBtn"),
       pause: document.getElementById("pauseBtn"),
-      hours: document.getElementById("hours"),
-      fill: document.getElementById("fill"),
-      pomoLine: document.getElementById("pomoLine"),
+      health: document.getElementById("health"),
+      healthFill: document.getElementById("healthFill"),
+      pomos: document.getElementById("pomos"),
+      damage: document.getElementById("damage"),
+      plus: document.getElementById("plusBtn"),
+      minus: document.getElementById("minusBtn"),
       syncInput: document.getElementById("syncKeyInput"),
       copyKey: document.getElementById("copyKeyBtn"),
       useKey: document.getElementById("useKeyBtn"),
@@ -238,30 +348,82 @@
 
     let progress = { completedPomos: 0, updatedAt: 0 };
 
-    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-    function fmtTime(sec){
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+    const fmtTime = (sec) => {
       const m = Math.floor(sec / 60);
       const s = sec % 60;
       return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-    }
+    };
+
     function setStatus(t){ els.status.textContent = t; }
+
+    function stateLabel(healthHours){
+      const pct = healthHours / GOAL_HOURS;
+      if (pct <= 0) return "DEFEATED";
+      if (pct <= 0.25) return "CRITICAL";
+      if (pct <= 0.50) return "HURT";
+      return "HEALTHY";
+    }
 
     function updateUI(){
       els.time.textContent = fmtTime(remaining);
 
-      const hoursDone = progress.completedPomos * HOURS_PER_POMO;
-      els.hours.textContent = hoursDone.toFixed(1);
-      els.pomoLine.textContent = `${progress.completedPomos} / ${GOAL_POMOS} pomodoros`;
+      const damageHours = progress.completedPomos * HOURS_PER_POMO;
+      const healthHours = clamp(GOAL_HOURS - damageHours, 0, GOAL_HOURS);
 
-      const pct = (hoursDone / GOAL_HOURS) * 100;
-      els.fill.style.width = clamp(pct, 0, 100) + "%";
+      els.health.textContent = healthHours.toFixed(1);
+      els.pomos.textContent = progress.completedPomos;
+      els.damage.textContent = damageHours.toFixed(1);
+
+      const healthPct = (healthHours / GOAL_HOURS) * 100;
+      els.healthFill.style.width = clamp(healthPct, 0, 100) + "%";
+
+      const label = stateLabel(healthHours);
+      els.statePill.textContent = label;
+
+      if(label === "DEFEATED"){
+        els.statePill.style.borderColor = "rgba(255,90,122,.55)";
+        els.statePill.style.background = "rgba(255,90,122,.12)";
+      } else if(label === "CRITICAL"){
+        els.statePill.style.borderColor = "rgba(255,90,122,.35)";
+        els.statePill.style.background = "rgba(255,90,122,.08)";
+      } else {
+        els.statePill.style.borderColor = "rgba(201,167,255,.45)";
+        els.statePill.style.background = "rgba(201,167,255,.10)";
+      }
+
+      // +/- disable limits
+      els.minus.disabled = progress.completedPomos <= 0;
+      els.plus.disabled = progress.completedPomos >= GOAL_POMOS;
     }
 
-    // ========= SYNC KEY =========
-    function randomKey(){
-      // long random key, good enough for "open rules"
-      return crypto.randomUUID() + "-" + crypto.randomUUID();
+    // ========= Local backup =========
+    function loadLocalBackup(){
+  try{
+    const raw = localStorage.getItem(backupKeyFor(syncKey));
+    if(!raw) return;
+
+    const data = JSON.parse(raw);
+
+    if(typeof data?.completedPomos === "number"){
+      progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
     }
+    if(typeof data?.updatedAt === "number"){
+      progress.updatedAt = data.updatedAt;
+    }
+  }catch(e){}
+}
+    function saveLocalBackup(){
+  try{
+    localStorage.setItem(
+      backupKeyFor(syncKey),
+      JSON.stringify(progress)
+    );
+  }catch(e){}
+}
+
+    // ========= Sync Key =========
+    function randomKey(){ return crypto.randomUUID() + "-" + crypto.randomUUID(); }
 
     function getSyncKey(){
       let k = localStorage.getItem(LOCAL_SYNC_KEY);
@@ -275,14 +437,77 @@
     let syncKey = getSyncKey();
     els.syncInput.value = syncKey;
 
+    // ========= Firebase optional =========
+    let db = null;
+    let doc = null;
+    let getDoc = null;
+    let setDoc = null;
+    let onSnapshot = null;
+    let unsub = null;
+
+    function docRef(){
+      return doc(db, "pomoProgress", syncKey);
+    }
+
+    async function pullRemoteOnce(){
+      if(!db) return;
+      const snap = await getDoc(docRef());
+      if(snap.exists()){
+        const data = snap.data();
+        const remoteUpdatedAt = typeof data.updatedAt === "number" ? data.updatedAt : 0;
+        if(remoteUpdatedAt >= (progress.updatedAt || 0)){
+          if(typeof data.completedPomos === "number"){
+            progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
+          }
+          progress.updatedAt = remoteUpdatedAt;
+          saveLocalBackup();
+        }
+      } else {
+        await setDoc(docRef(), { completedPomos: progress.completedPomos, updatedAt: Date.now() }, { merge: true });
+      }
+      updateUI();
+    }
+
+    function subscribeToRemote(){
+      if(!db) return;
+      if(unsub) unsub();
+      unsub = onSnapshot(docRef(), (snap) => {
+        if(!snap.exists()) return;
+        const data = snap.data();
+        const remoteUpdatedAt = typeof data.updatedAt === "number" ? data.updatedAt : 0;
+        if(remoteUpdatedAt > (progress.updatedAt || 0)){
+          if(typeof data.completedPomos === "number"){
+            progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
+          }
+          progress.updatedAt = remoteUpdatedAt;
+          saveLocalBackup();
+          updateUI();
+        }
+      });
+    }
+
+    async function pushProgress(){
+      saveLocalBackup();
+      if(!db) return;
+      progress.updatedAt = Date.now();
+      await setDoc(docRef(), { completedPomos: progress.completedPomos, updatedAt: progress.updatedAt }, { merge:true });
+    }
+
     function setSyncKey(newKey){
       const cleaned = (newKey || "").trim();
       if(!cleaned) return;
       syncKey = cleaned;
+      progress = { completedPomos: 0, updatedAt: 0 };
+loadLocalBackup();
+updateUI();
       localStorage.setItem(LOCAL_SYNC_KEY, syncKey);
       els.syncInput.value = syncKey;
-      subscribeToRemote(); // re-subscribe
-      pullRemoteOnce();    // refresh data now
+
+      if(db){
+        subscribeToRemote();
+        pullRemoteOnce().catch(()=>{});
+      }
+
       setStatus("Synced");
       setTimeout(() => setStatus("Ready"), 900);
     }
@@ -291,75 +516,16 @@
       try{
         await navigator.clipboard.writeText(syncKey);
         setStatus("Key copied");
-        setTimeout(() => setStatus("Ready"), 900);
       } catch(e){
-        // fallback: select
         els.syncInput.focus();
         els.syncInput.select();
         setStatus("Select + copy");
-        setTimeout(() => setStatus("Ready"), 900);
       }
+      setTimeout(() => setStatus("Ready"), 900);
     });
-
     els.useKey.addEventListener("click", () => setSyncKey(els.syncInput.value));
 
-    // ========= FIRESTORE =========
-    function docRef(){
-      return doc(db, "pomoProgress", syncKey);
-    }
-
-    let unsub = null;
-
-    async function pullRemoteOnce(){
-      try{
-        const snap = await getDoc(docRef());
-        if(snap.exists()){
-          const data = snap.data();
-          if(typeof data.completedPomos === "number"){
-            progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
-          }
-          if(typeof data.updatedAt === "number") progress.updatedAt = data.updatedAt;
-        } else {
-          // initialize remote doc
-          await setDoc(docRef(), { completedPomos: 0, updatedAt: Date.now() }, { merge: true });
-        }
-        updateUI();
-      } catch(e){
-        setStatus("Sync error");
-      }
-    }
-
-    function subscribeToRemote(){
-      if(unsub) unsub();
-      unsub = onSnapshot(docRef(), (snap) => {
-        if(!snap.exists()) return;
-        const data = snap.data();
-        const remoteUpdatedAt = typeof data.updatedAt === "number" ? data.updatedAt : 0;
-
-        // Only apply newer remote updates
-        if(remoteUpdatedAt > (progress.updatedAt || 0)){
-          if(typeof data.completedPomos === "number"){
-            progress.completedPomos = clamp(Math.floor(data.completedPomos), 0, GOAL_POMOS);
-          }
-          progress.updatedAt = remoteUpdatedAt;
-          updateUI();
-
-          if(progress.completedPomos >= GOAL_POMOS){
-            setStatus("Goal reached ✅");
-          }
-        }
-      });
-    }
-
-    async function pushProgress(){
-      progress.updatedAt = Date.now();
-      await setDoc(docRef(), {
-        completedPomos: progress.completedPomos,
-        updatedAt: progress.updatedAt
-      }, { merge: true });
-    }
-
-    // ========= TIMER =========
+    // ========= Timer =========
     function start(){
       if(running) return;
       running = true;
@@ -367,10 +533,10 @@
       els.pause.disabled = false;
       setStatus("Running");
 
-      intervalId = setInterval(async () => {
+      intervalId = setInterval(() => {
         remaining -= 1;
         if(remaining <= 0){
-          await completePomodoro();
+          completePomodoro();
         }
         updateUI();
       }, 1000);
@@ -386,9 +552,7 @@
       intervalId = null;
     }
 
-    function resetTimer(){
-      remaining = POMO_SECONDS;
-    }
+    function resetTimer(){ remaining = POMO_SECONDS; }
 
     async function completePomodoro(){
       clearInterval(intervalId);
@@ -398,28 +562,77 @@
       if(progress.completedPomos < GOAL_POMOS){
         progress.completedPomos += 1;
         updateUI();
-        try{ await pushProgress(); } catch(e){ setStatus("Sync error"); }
+        await pushProgress().catch(()=>{});
       }
 
       resetTimer();
       els.start.disabled = false;
       els.pause.disabled = true;
 
-      if(progress.completedPomos >= GOAL_POMOS){
-        setStatus("Goal reached ✅");
+      const damageHours = progress.completedPomos * HOURS_PER_POMO;
+      if(damageHours >= GOAL_HOURS){
+        setStatus("Boss defeated ✅");
       } else {
-        setStatus("+0.5 added");
+        setStatus("Damage dealt +0.5h");
         setTimeout(() => setStatus("Ready"), 1200);
       }
     }
 
+    // ========= Manual +/- =========
+    async function addManual(){
+      if(progress.completedPomos >= GOAL_POMOS) return;
+      progress.completedPomos += 1;
+      updateUI();
+      setStatus("+1 Pomodoro");
+      setTimeout(() => setStatus(running ? "Running" : "Ready"), 900);
+      await pushProgress().catch(()=>{});
+    }
+
+    async function removeManual(){
+      if(progress.completedPomos <= 0) return;
+      progress.completedPomos -= 1;
+      updateUI();
+      setStatus("-1 Pomodoro");
+      setTimeout(() => setStatus(running ? "Running" : "Ready"), 900);
+      await pushProgress().catch(()=>{});
+    }
+
     els.start.addEventListener("click", start);
     els.pause.addEventListener("click", pause);
+    els.plus.addEventListener("click", addManual);
+    els.minus.addEventListener("click", removeManual);
 
-    // init
-    await pullRemoteOnce();
-    subscribeToRemote();
+    // ========= Init =========
+    loadLocalBackup();
     updateUI();
+
+    // Firebase init (optional; timer still works without it)
+    (async () => {
+      try{
+        const firebaseConfig = {
+          apiKey: "AIzaSyBvTg8pUjUQiHOzr1ryE3f0FjLAnesXAsc",
+          authDomain: "pomodoro-notion-39b10.firebaseapp.com",
+          projectId: "pomodoro-notion-39b10",
+          storageBucket: "pomodoro-notion-39b10.firebasestorage.app",
+          messagingSenderId: "1072647200630",
+          appId: "1:1072647200630:web:f1ad500e8db31e87366457"
+        };
+
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js");
+        const firestore = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js");
+        const { getFirestore, doc: _doc, getDoc: _getDoc, setDoc: _setDoc, onSnapshot: _onSnapshot } = firestore;
+
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        doc = _doc; getDoc = _getDoc; setDoc = _setDoc; onSnapshot = _onSnapshot;
+
+        await pullRemoteOnce();
+        subscribeToRemote();
+        setStatus("Ready");
+      } catch(e){
+        setStatus("Local mode");
+      }
+    })();
   </script>
 </body>
 </html>
